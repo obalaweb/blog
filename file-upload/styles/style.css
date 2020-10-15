@@ -1,0 +1,19 @@
+body {
+  background: rgba(71,149,146,0.821);
+}
+
+p {
+  color:#fff;
+  font-size: 19px;
+}
+
+.shit {
+  position: relative;
+  display: inline-flex;
+}
+
+.img {
+  width: auto;
+  height: 180px;
+  display: flex;
+}

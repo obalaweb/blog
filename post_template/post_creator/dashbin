@@ -1,0 +1,31 @@
+<?php
+    require('connect.php');
+    
+$success = "";
+$error = "";
+$title = $_POST['title'];
+$author = $_POST['author'];
+$post_content = $_POST['post_content'];
+
+if (isset($_POST['post'])) {
+  
+if (empty($_POST['title']) || empty($_POST['author']) || empty($_POST['post_content'])){
+  $error = "Please fill in all the blanks";
+}
+
+if ($title = $row['a_title']) {
+  $error = "Post with th same title already exists";
+    
+}elseif (!$title = $row['a_title']) {
+  
+$sql = "INSERT INTO test_post (a_title, a_author, a_post, cur_date)
+VALUES ('$title', '$author', '$post_content', NOW())";
+
+if ($conn->query($sql) === TRUE) {
+    $success = "Post added successfully";
+} else {
+    $error = "Failed adding post";
+}
+
+}
+}

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <meta name="" content="">
+    <title></title>
+  </head>
+  <body>
+     <div id="editor">
+       Lorem ipsum dolor sit amet, consectetur adipisicing elit. Veritatis eaque quo, voluptas nemo tempore? Temporibus accusamus ab tempore totam nemo saepe ipsum voluptas illo amet, est animi, eligendi laborum blanditiis!
+     </div>
+    <button type="button" id="update">
+      Update
+    </button>
+    
+    <script>
+       const post = document.querySelector('#editor');
+     const Update = document.querySelector('#update');
+     Update.addEventListener("click", function () {
+       console.log(post['innerText']);
+     });
+    </script>
+  </body>
+</html>

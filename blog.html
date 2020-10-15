@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title></title>
+    
+    <style>
+      .img {
+        height: 160px;
+        width: auto;
+      }
+      .checked {
+        border: 3px solid blue;
+      }
+    </style>
+  </head>
+  <body>
+    <div>
+      <div class="img">
+        <!--<button><img class="img" src="img/IMG_ld2j38.jpg" alt=""></button>-->
+        <form action="yyy.php" method="post">
+         <div>
+            <input onclick="check()" type="image" name="img" id="img" src="img/IMG_ld2j38.jpg" class="img" alt="" />
+            <h5>Poop1</h5>
+             <input onclick="check()" type="image" name="img" id="img" src="img/PicsArt_02-25-03.14.28 1.jpg" class="img" alt="" />
+              <h5>Poop1</h5>
+              <input onclick="check()" type="image" name="img" id="img" src="blog-img/code.jpg" class="img" alt="" />
+               <h5>Poop1</h5>
+               <input onclick="check()" type="image" name="img" id="img" src="img/IMG_ld2j38.jpg" class="img" alt="" />
+                <h5>Poop1</h5>
+         </div>
+          <button id="submit">Submit</button>
+        </form>
+    </div>
+    <script src="lib/jquery/jquery.min.js"></script>
+    <script>
+    $(document).ready(function() {
+      
+      var x = document.getElementById("img");
+      var y = document.getElementById("submit");
+      function check() {
+        //x['checked'] = true;
+        x.addClass('checked');
+        $("form").preventDefault();
+      }
+      y.addEventListener('click', function() {
+        console.log(x);
+        });
+      
+    })
+      
+    </script>
+  </body>
+</html>
