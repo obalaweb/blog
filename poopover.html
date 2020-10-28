@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+  <meta content="width=device-width, initial-scale=1.0, user-scalable=0" name="viewport">
+    <title>popover</title>
+  <link href="lib/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  </head>
+  <body>
+    <div class="container">
+      
+      
+      <button type="button" class="btn btn-primary">Primary <span class="badge">7</span><span class="glyphicon glyphicon-search"></span></button>
+      
+      
+      
+        <a href="#" data-toggle="popover" title="Popover Header" data-content="Some content inside the popover">Toggle popover</a>
+    </div>
+    
+    
+      <script src="lib/jquery/jquery.min.js"></script>
+        <script src="lib/popper/popper.min.js"></script>
+      <script src="lib/bootstrap/js/bootstrap.min.js"></script>
+    <script>
+$(document).ready(function(){
+    $('[data-toggle="popover"]').popover();
+});
+</script>
+  </body>
+</html>

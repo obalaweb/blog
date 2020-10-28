@@ -1,10 +1,71 @@
 <?php
 session_start();
 include("server.php");
+if (isset($_SESSION['loggedIn']) && isset($_SESSION['name'])) {
+    $loggedIn = true;
+}
+
+
 
 $alert = "";
- 
 if (isset($_POST['login'])) {
+    $email = $db->real_escape_string($_POST['uemail']);
+    $password = $db->real_escape_string($_POST['upass']);
+
+    if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $sql = $db->query("SELECT id, upass, uname FROM login WHERE uemail='$email'");
+        if ($sql->num_rows == 0)
+            exit('failed');
+        else {
+            $data = $sql->fetch_assoc();
+            $passwordHash = $data['upass'];
+
+            if (password_verify($password, $passwordHash)) {
+                $_SESSION['loggedIn'] = 1;
+                $_SESSION['name'] = $data['uname'];
+                $_SESSION['email'] = $email;
+                $_SESSION['userID'] = $data['id'];
+
+                header("location:index.php");
+            } else
+                exit('failed first');
+        }
+    } else
+        exit('failed second');
+}
+
+
+if (isset($_POST['register'])) {
+    $name = $db->real_escape_string($_POST['uname']);
+    $email = $db->real_escape_string($_POST['uemail']);
+    $password = $db->real_escape_string($_POST['upass']);
+
+    if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $sql = $db->query("SELECT id FROM login WHERE uemail='$email'");
+        if ($sql->num_rows > 0)
+            exit('failedUserExists');
+        else {
+            $ePassword = password_hash($password, PASSWORD_BCRYPT);
+            $db->query("INSERT INTO login (uname,uemail,upass,createdOn) VALUES ('$name', '$email', '$ePassword', NOW())");
+
+            $sql = $db->query("SELECT id FROM login ORDER BY id DESC LIMIT 1");
+            $data = $sql->fetch_assoc();
+
+            $_SESSION['loggedIn'] = 1;
+            $_SESSION['name'] = $name;
+            $_SESSION['email'] = $email;
+            $_SESSION['userID'] = $data['id'];
+
+            exit('success');
+        }
+    } else
+    exit("hey you run into errors");
+        //exit('failedEmail')
+        
+        
+}
+ 
+/*if (isset($_POST['login'])) {
   $name = $_POST["uname"];
   $pass = $_POST["upass"];
   
@@ -33,7 +94,7 @@ if (isset($_POST['login'])) {
   
   }
   
-}
+}*/
 
 
 if (isset($_POST["add_post"])) {
@@ -94,11 +155,13 @@ if ($uploadOk == 0) {
 }
 
     $sql = "INSERT INTO Article (a_title, a_tag, a_author, a_date, a_text, a_img)
-VALUES ('$title', '', '".date("d/m/Y")."', '$tag', '$post', 'blog-img/$img')";
+VALUES ('$title', '$tag', '', NOW(), '$post', 'blog-img/$img')";
 
 if ($db->query($sql) === TRUE) {
-  echo $img;
-    //header("location: view.php");
+  $id = $db->insert_id;
+  
+  //$id = $db->query("SELECT id FROM Article WHERE a_title == $title");
+    header("location:edit.php?Id=$id && Err=alert-success && Alert=Post added successfully!");
 } else {
     echo "Error: " . $sql . "<br>" . $db->error;
 }
@@ -107,7 +170,21 @@ if ($db->query($sql) === TRUE) {
 
 
 
+if (isset($_POST['newDate'])) {
+  $id = $_GET['Id'];
+  $date = $_POST['newDate'];
+  
+  $sql = "UPDATE Article SET a_date='$date' WHERE id='$id'";
 
+if ($db->query($sql) === TRUE) {
+    //echo "successfully updated";
+    echo $id;
+
+} else {
+    echo "Error updating record: " . $db->error;
+}
+  
+}
 
 
 
@@ -126,15 +203,13 @@ if ($result->num_rows > 0) {
     while($row = $result->fetch_assoc()) {
     if ($_FILES['img']['name'] == $row['a_img']) {
     $img = $row['a_img'];
-    print("test from database = id");
-    echo $row['a_img'];
+
     }
     
  else {
     $img = $row['a_img'];
   //echo$_FILES['img']['name'];
-    echo $img;
-    print("test from form input");
+  
 }
     }
 }
@@ -142,18 +217,15 @@ if ($result->num_rows > 0) {
     
     
     $tag = $_POST["tag"];
-    $date = date("d/m/Y");
     
   
   
   
-  $sql = "UPDATE Article SET a_title='$title', a_tag='$tag', a_author='', a_date='$date', a_text='$post', a_img='$img' WHERE id='$id'";
+  $sql = "UPDATE Article SET a_title='$title', a_tag='$tag', a_author='', a_text='$post', a_img='$img' WHERE id='$id'";
 
 if ($db->query($sql) === TRUE) {
-    //header("location:edit.php?Id=$id && Err=alert-success && Alert=Post updated successfully");
-    echo $img;
-    echo $row['a_img'];
-    print("test from last database query");
+    header("location:edit.php?Id=$id && Err=alert-success && Alert=Post updated successfully");
+
 } else {
     echo "Error updating record: " . $db->error;
 }

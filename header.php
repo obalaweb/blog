@@ -9,7 +9,7 @@ include('offersmail.php');
 <head>
   <meta charset="utf-8">
   <title>Most recent wed development updates | Obala Joseph Ivan</title>
-  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <meta content="width=device-width, initial-scale=1.0, user-scalable=0" name="viewport">
   <meta content="" name="keywords">
   <meta content="" name="description">
     <!-- Favicons -->
@@ -91,13 +91,27 @@ include('offersmail.php');
             <li class="breadcrumb-item">
               <a href="index.php">Home</a>
             </li>
+                <?php if ($_GET['tag']) {
+                  ?>
+  <li class="breadcrumb-item active">
+<?php
+                echo $_GET["tag"];
+              
+                ?>
+              
+            </li>
+            <?php } 
+    if (isset($_POST['submit'])){
+            ?>
+        
             <li class="breadcrumb-item">
               <a href="search.php"><?php
-              if (isset($_POST['submit'])){
-                echo 'Seach';
-              }
+              
+                echo 'Search';
+              
               ?></a>
             </li>
+            <?php } ?>
           </ol>
         </div>
   <!-- search place --->

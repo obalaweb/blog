@@ -1,11 +1,14 @@
 <?php
 session_start();
 require("server.php");
-if ($_SESSION["favcolor"] != "green") {
-  
-      header("location:login.php?Invalid = Please Login");
+$loggedIn = false;
+require("process.php");
+
+
+
+if (!$loggedIn) {
+  header("location:login.php?Invalid=please login first");
 } else {
-  
 ?>
 <!DOCTYPE html>
 <html>
@@ -55,7 +58,7 @@ if ($_SESSION["favcolor"] != "green") {
        </div>
                           <?php
 
-$sql = "SELECT * FROM Article";
+$sql = "SELECT * FROM Article ORDER BY Article.id DESC";
       $result = mysqli_query($db, $sql);
       $queryResult = mysqli_num_rows($result);
     
@@ -68,7 +71,9 @@ $sql = "SELECT * FROM Article";
         echo " <div class='container'><div class='main-content'>
           <div class='container'>
           <img src='../".$row['a_img']."' alt='".$row['a_tag']."' class='img-fluid'>
-          <h5> ". $row['a_title']." </h5><p>".substr($row['a_text'], 0, 60)."...</p> <a href='edit.php?Id=".$row['id']."'><input type='button' value='Edit' class='btn btn-rounded btn-success btn-sm'></a>             
+          <h5> <a href='../article.php?title=".$row['a_title']."&date=".$row['a_date']."&id=".$row['id']."'>". $row['a_title']." </a></h5><p>".substr($row['a_text'], 0, 60)."...</p>
+          <p><i>Posted on </i>".$row['a_date']."</p>
+          <a href='edit.php?Id=".$row['id']."'><input type='button' value='Edit' class='btn btn-rounded btn-success btn-sm'></a>             
           <a href='view.php?Del=".$row['id']."'><input type='button' value='Delete' class='btn btn-rounded btn-danger btn-sm'></a>             
           </div>
        </div>
@@ -98,7 +103,7 @@ $sql = "SELECT * FROM Article";
        </div>
        
        <a class="inactive" href="comments.php"><i class="fa fa-snapchat"></i>Comments</a>
-       <a class="inactive" href="#"><i class="fa fa-snapchat"></i>Howdy</a>
+       <a class="inactive" href="#"><i class="fa fa-snapchat"></i>Subscribers</a>
        <a href="settings.php"><i class="fa fa-tools"></i>Setting</a>
        <a href="logout.php"><i class="fa fa-home"></i>Logout</a>
      </div>
@@ -150,5 +155,4 @@ $sql = "SELECT * FROM Article";
    </script>
   </body>
 </html>
-<?php
-}
+<?php } ?>

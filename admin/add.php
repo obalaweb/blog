@@ -1,9 +1,13 @@
 <?php
 session_start();
 require("server.php");
-if ($_SESSION["favcolor"] != "green") {
-  
-      header("location:login.php?Invalid = Please Login");
+$loggedIn = false;
+require("process.php");
+
+
+
+if (!$loggedIn) {
+  header("location:login.php?Invalid=please login first");
 } else {
   
 ?>
@@ -29,8 +33,13 @@ if ($_SESSION["favcolor"] != "green") {
      <header>
        <nav class="top py-1">   
        <h4 class="pl-2 float-left"><i id="bars" class="fa fa-bars"></i></h4> 
-      <a href="../../"><i id="home" class="fa fa-home mx-4"></i></a>
-           <a class="btn btn-warning mr-2 float-right" href="logout.php">Logout</a>
+       <div class="dropdown">
+      <span><i id="home" class="fa fa-home mx-4"></i></span>
+      <div class="visit-site"> 
+      <a class="btn" href="../../">Visit Site</a>
+      </div>
+      </div>
+           <button class="btn btn-warning mr-2 float-right" id="logout">Logout</button>
        </nav>
      </header>
    </div>
@@ -42,7 +51,7 @@ if ($_SESSION["favcolor"] != "green") {
 ===============================
 ===============================
 ----> 
-   <div class="content-wrapper pt-3">
+   <div class="content-wrapper pt-3 ml-3">
      <div class="container">
        <div class="title">
          <h3 class="text-left">Add Post</h3>
@@ -53,13 +62,15 @@ if ($_SESSION["favcolor"] != "green") {
           <div class="container">
             <form method="post" action="process.php" enctype="multipart/form-data">
               <input type="text" placeholder="Title" name="title" class="form-control">
+              <br />
+              <input type="text" placeholder="Post Tag" name="tag" class="form-control">
               <br>
-                <textarea name="post" class="form-control textarea mb-3" rows="10" cols="28" placeholder="Lorem ipsum dolor sit amet, consectetur adipisicing elit."> </textarea>
+                <textarea name="post" class="form-control textarea mb-3" rows="10" cols="48" id="editor"> </textarea>
               
             
                   
           </div>
-          <div class="img-area">
+          <div class="img-area mt-3">
             <h6>Upload Post Image</h6>
             <input id="img" name="img" class="form-control" type="file">
           </div>
@@ -67,7 +78,7 @@ if ($_SESSION["favcolor"] != "green") {
        </div>
      </div>
    <div class="ml-5"> 
-     <a href="#"><input type="submit" name="add_post" value="Update" class="btn btn-rounded btn-primary btn-md"></a>
+     <input style="color:#fff" type="submit" name="add_post" value="Update" class="btn btn-rounded btn-primary btn-md">
      <br>
     </div>
    </div>
@@ -115,9 +126,18 @@ if ($_SESSION["favcolor"] != "green") {
 ----> 
     <script src="Asset/jQuery.js"></script>
    <script src="styles/bootstrap.min.js"></script>
-    <script src="Asset/ckeditor2/ckeditor.js"></script>
+    <script src="Asset/ckeditor/ckeditor.js"></script>
    <script>
-     CKEDITOR.replace('post');
+       ClassicEditor
+		.create( document.querySelector( '#editor' ), {
+toolbar: [ 'heading', '|', 'bold', 'italic', 'link', 'image']
+		} )
+		.then( editor => {
+			window.editor = editor;
+		} )
+		.catch( err => {
+			console.error( err.stack );
+		} );
    </script>
    <script>
      const bars = document.querySelector("#bars");

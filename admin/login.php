@@ -53,7 +53,7 @@ require("server.php");
            </div>
                
                    <div class="field">
-                       <input id="name" name="uname" type="text" onkeyup="active()" placeholder="Username">
+                       <input id="email" name="uemail" type="email" onkeyup="active()" placeholder="User Email">
                    </div>
                    <div class="field">
                        <input id="passwrd" name="upass" onkeyup="active_2" type="password" placeholder="Enter Password">
@@ -63,6 +63,7 @@ require("server.php");
                     </div>
                        <button  type="submit" name="login">Login</button>
            </form>
+           <div class="signup"><a href="register.php">Register</a></div>
         </div>
         
       

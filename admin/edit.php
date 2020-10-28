@@ -1,10 +1,13 @@
 <?php
 session_start();
 require("server.php");
-//require("process.php");
-if ($_SESSION["favcolor"] != "green") {
-  
-      header("location:login.php?Invalid = Please Login");
+$loggedIn = false;
+require("process.php");
+
+
+
+if (!$loggedIn) {
+  header("location:login.php?Invalid=please login first");
 } else {
   
 ?>
@@ -27,12 +30,17 @@ if ($_SESSION["favcolor"] != "green") {
 ===============================
 ===============================
 ----> 
-   <div class="admin-navbar">
+     <div class="admin-navbar">
      <header>
        <nav class="top py-1">   
        <h4 class="pl-2 float-left"><i id="bars" class="fa fa-bars"></i></h4> 
-      <a href="../../"><i id="home" class="fa fa-home mx-4"></i></a>
-           <a class="btn btn-warning mr-2 float-right" href="logout.php">Logout</a>
+       <div class="dropdown">
+      <span><i id="home" class="fa fa-home mx-4"></i></span>
+      <div class="visit-site"> 
+      <a class="btn" href="../../">Visit Site</a>
+      </div>
+      </div>
+           <button class="btn btn-warning mr-2 float-right" id="logout">Logout</button>
        </nav>
      </header>
    </div>
@@ -66,17 +74,11 @@ if ($result->num_rows > 0) {
          <h3 class="text-left">Edit Post</h3>
        </div>
        <div class="main-content">
-         <?php if (!$_GET['Alert']){
-           
-         }else {
-           ?>
-              <div class="alert
-              <?php echo $_GET['Err']; ?>"><?php
-              echo $_GET['Alert'];
-              ?>
+              <div id="alert-zone" class="alert fadein">
+          <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
             
               </div>
-          <?php } ?>
+      
           <div class="container">
             <form method="post" action="process.php?Id=<?php echo $id; ?>" enctype="multipart/form-data" class="edit">
               Post Title
@@ -111,10 +113,18 @@ echo "<img src='../".$row['a_img']."' class='img-fluid' id='img-rep'>";
     
     <?php } ?>
   </div>
+  
           </div>
-          
+        <div class="others my-3">
+              <button data-toggle="modal" data-target="#myModals" id="btn-other" type="button" class="inners"> 
+    Edit Others
+    </button>
+        </div>  
        </div>
+       
      </div>
+     
+     
    <div class="ml-5"> 
      
        <input id="update_post" type="submit" name="update_post" value="Update" class="btn btn-rounded btn-primary btn-md">
@@ -222,12 +232,12 @@ if ($result->num_rows > 0) {
 } else {
     echo "0 results";
 }
-$db->close();
+
 ?>
 </div>
 <div id="London" class="city">
   <h2>Upload Image</h2>
- <input type="file" class="btn btn-default hidden" value="Upload">
+ <input type="file" class="btn btn-default hiddens" value="Upload">
 </div>
 </div>
  </div>
@@ -239,6 +249,66 @@ $db->close();
       </div>
     </div>
   </div>
+</div>
+</div>
+
+
+<!-- Modal -->
+<div id="myModals" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+  <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header"><h4 class="modal-title">Other Settings</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+   <div class="modal-body">
+     
+    <div class="container">
+
+    <div class="rows">
+    <?php
+$sql = "SELECT * FROM Article WHERE id='$id'";
+$result = $db->query($sql);
+
+if ($result->num_rows > 0) {
+    // output data of each row
+    while($row = $result->fetch_assoc()) {
+       ?>
+           
+  </div>
+  
+ <form method="post" action="process.php?Id=<?php echo $id; ?>" enctype="multipart/form-data" id="modal-edit">
+
+              <label>Date</label>
+              <input onclick="settingOpen()" type="datetime" value="<?php echo $row["a_date"];  ?>" placeholder="Date" id="ndate" name="date" class="form-control">
+              <div class="imgSelect" style="position:absolute;">
+                              <input type="checkbox" value="<?php echo $row['a_img']; ?>">
+              <img class="img-thumbnail" src="../<?php echo $row['a_img'] ?>"/>
+              </div>
+
+
+       <?php
+    }
+} else {
+    echo "0 results";
+}
+$db->close();
+?>
+</div>
+
+
+ </div>
+      <div class="modal-footer">
+         <div id="msgSubmit" class="alert"></div>
+        <button type="submit" class="btn btn-default" name="ModalSet" id="saveModal">Save Settings</button>
+        <button type="button" class="btn btn-default hidden" id="hiddenBtn" data-dismiss="modal">Close Settings</button>
+      
+      </div>
+      </form>
+     
+    </div>
+  </div>
+</div>
 </div>
 
 
@@ -266,7 +336,6 @@ toolbar: [ 'heading', '|', 'bold', 'italic', 'link' ]
 			console.error( err.stack );
 		} );
    </script>
-   
    <script>
      const bars = document.querySelector("#bars");
      const sidebar = document.querySelector("#sidebar");
@@ -301,10 +370,65 @@ function openCity(cityName) {
 }
    </script>
    <script>
-   document.querySelector(".alert-success").setTimeout(fadeOut, 3000)
-     function fadeOut() {
-       alert('Hello');
-     }
+   $(document).ready(function () {
+     
+  var closeBtn = $("#hiddenBtn");
+  var saveBtn = $("#saveModal");
+  $("#modal-edit").submit(function (event) {
+    event.preventDefault();
+    var that = $(this);
+    url = that.attr("action");
+    var newDate = $("#ndate").val();
+    var error = $("#msgSubmit");
+    
+    
+    if (!newDate) {
+      error.html("Please fill in all the blanks!");
+      error.fadeIn().addClass("alert-danger");
+      setTimeout(function() {
+        error.fadeOut("slow");
+      }, 2000);
+      error.removeClass("alert-success");
+    }
+    else {
+    
+      $.ajax({
+        url:url,
+        method:"POST",
+        data:{newDate:newDate},
+        success:function(data) {
+          if (data != "successfully updated"){
+         // error.html("Saved successfully");
+         error.html(data);
+          error.fadeIn().addClass("alert-success");
+          closeBtn.toggleClass("hidden");
+          setTimeout(function() {
+            error.fadeOut("slow");
+          }, 2000)
+          error.removeClass("alert-danger");
+          saveBtn.addClass("hidden");
+          }else {
+            //error.html("Failed updating post date");
+            error.html(data);
+          error.fadeIn().addClass("alert-warning");
+          setTimeout(function() {
+            error.fadeOut("slow");
+          }, 3500)
+          error.removeClass("alert-danger");
+          error.removeClass("alert-success");
+          }
+          
+        }
+      })
+    }
+  });
+  
+  function settingOpen() {
+    saveBtn.removeClass("hidden");
+    closeBtn.addClass("hidden");
+  }
+  
+});
    </script>
   </body>
 </html>

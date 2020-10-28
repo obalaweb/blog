@@ -1,21 +1,16 @@
 <?php
-  <?php
+/*
+define( TIMEBEFORE_NOW,         'now' );
+    define( TIMEBEFORE_MINUTE,      '{num} minute ago' );
+    define( TIMEBEFORE_MINUTES,     '{num} minutes ago' );
+    define( TIMEBEFORE_HOUR,        '{num} hour ago' );
+    define( TIMEBEFORE_HOURS,       '{num} hours ago' );
+    define( TIMEBEFORE_YESTERDAY,   'yesterday' );
+    define( TIMEBEFORE_FORMAT,      '%e %b' );
+    define( TIMEBEFORE_FORMAT_YEAR, '%e %b, %Y' );
 
-  /*define( "TIMEBEFORE_NOW",         'now' );
-   
-    define( "TIMEBEFORE_MINUTE",      '{num} minute ago' );
-    
-    define( "TIMEBEFORE_MINUTES",     '{num} minutes ago' );
-    
-    define( "TIMEBEFORE_HOUR",        '{num} hour ago' );
-    
-    define( "TIMEBEFORE_HOURS",       '{num} hours ago' );
-    
-    define( "TIMEBEFORE_YESTERDAY",   'yesterday' );
-    
-    define( "TIMEBEFORE_FORMAT",      '%e %b' );
-    
-    define( "TIMEBEFORE_FORMAT_YEAR", '%e %b, %Y' );
+$time = 1442082961;
+
 
     function time_ago( $time )
     {
@@ -38,22 +33,9 @@
         else // falling back on a usual date format as it happened later than yesterday
             return strftime( date( 'Y', $time ) == date( 'Y' ) ? TIMEBEFORE_FORMAT : TIMEBEFORE_FORMAT_YEAR, $time );
     }
+time_ago();
 
-
-  <?=time_ago( 1447571705 )?>
-  
-  Published <time 
-    datetime="<?=date( 'Y-m-d', $time )?>" 
-    title="<?=strftime( date( 'Y', $time ) == 
-        date( 'Y' ) ? TIMEBEFORE_FORMAT : TIMEBEFORE_FORMAT_YEAR, $time )?>">
-    <?=time_ago( $time )?>
-    </time>
-    
-  */
-  
-  
-  
-/*
+*//*
 
 function time_elapsed_string($datetime, $full = false) {
     $now = new DateTime;
@@ -84,7 +66,41 @@ function time_elapsed_string($datetime, $full = false) {
     return $string ? implode(', ', $string) . ' ago' : 'just now';
 }
 
-echo time_elapsed_string('2013-05-01 00:22:35');
-echo time_elapsed_string('@1367367755'); # timestamp input
-echo time_elapsed_string('2013-05-01 00:22:35', true);
-*/
+*//*
+
+
+function time_elapsed_string($ptime)
+{
+    $etime = time() - $ptime;
+
+    if ($etime < 1)
+    {
+        return '0 seconds';
+    }
+
+    $a = array( 365 * 24 * 60 * 60  =>  'year',
+                 30 * 24 * 60 * 60  =>  'month',
+                      24 * 60 * 60  =>  'day',
+                           60 * 60  =>  'hour',
+                                60  =>  'minute',
+                                 1  =>  'second'
+                );
+    $a_plural = array( 'year'   => 'years',
+                       'month'  => 'months',
+                       'day'    => 'days',
+                       'hour'   => 'hours',
+                       'minute' => 'minutes',
+                       'second' => 'seconds'
+                );
+
+    foreach ($a as $secs => $str)
+    {
+        $d = $etime / $secs;
+        if ($d >= 1)
+        {
+            $r = round($d);
+            return $r . ' ' . ($r > 1 ? $a_plural[$str] : $str) . ' ago';
+        }
+    }
+}
+?>

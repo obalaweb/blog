@@ -1,6 +1,6 @@
 <?php
   require 'connect.php';
-  
+  include 'seo-action.php';
   $title = mysqli_real_escape_string($conn, $_GET['title']);
 $date = mysqli_real_escape_string($conn, $_GET['date']);
      $sql = "SELECT * FROM Article WHERE a_title='$title' AND a_date='$date'";
@@ -10,7 +10,51 @@ $date = mysqli_real_escape_string($conn, $_GET['date']);
       
       
       while ($row = mysqli_fetch_assoc($result)) {
-      ?>
+        
+        $conn = new mysqli('localhost', 'root', '', 'blog_trial');
+
+function createCommentRow($data) {
+    global $conn;
+
+    $response = '
+            <div class="comment">
+                <div class="user">'.$data['name'].' <span class="time">'.$data['createdOn'].'</span></div>
+                <div class="userComment">'.$data['comment'].'</div>
+                <div class="reply"><a href="javascript:void(0)" data-commentID="'.$data['id'].'" onclick="reply(this)">REPLY</a></div>
+                <div class="replies">';
+
+    $sql = $conn->query("SELECT replies.id, name, comment, DATE_FORMAT(replies.createdOn, '%Y-%m-%d') AS createdOn FROM replies INNER JOIN users ON replies.userID = users.id WHERE replies.commentID = '".$data['id']."' ORDER BY replies.id DESC LIMIT 1");
+    while($dataR = $sql->fetch_assoc())
+        $response .= createCommentRow($dataR);
+
+    $response .= '
+                        </div>
+            </div>
+        ';
+
+    return $response;
+}
+
+if (isset($_POST['addComment'])) {
+    $comment = $conn->real_escape_string($_POST['comment']);
+    $isReply = $conn->real_escape_string($_POST['isReply']);
+    $commentID = $conn->real_escape_string($_POST['commentID']);
+
+    if ($isReply != 'false') {
+        $conn->query("INSERT INTO replies (comment, commentID, userID, createdOn) VALUES ('$comment', '$commentID', '".$_SESSION['userID']."', NOW())");
+        $sql = $conn->query("SELECT replies.id, name, comment, DATE_FORMAT(replies.createdOn, '%Y-%m-%d') AS createdOn FROM replies INNER JOIN users ON replies.userID = users.id ORDER BY replies.id DESC LIMIT 1");
+    } else {
+        $conn->query("INSERT INTO comments (userID, comment, createdOn) VALUES ('".$_SESSION['userID']."','$comment',NOW())");
+        $sql = $conn->query("SELECT comments.id, name, comment, DATE_FORMAT(comments.createdOn, '%Y-%m-%d') AS createdOn FROM comments INNER JOIN users ON comments.userID = users.id ORDER BY comments.id DESC LIMIT 1");
+    }
+
+    $data = $sql->fetch_assoc();
+    exit(createCommentRow($data));
+}
+
+$sqlNumComments = $conn->query("SELECT id FROM seo_comment");
+$numComments = $sqlNumComments->num_rows;
+?>
     
 
 <!DOCTYPE html>
@@ -94,7 +138,9 @@ $date = mysqli_real_escape_string($conn, $_GET['date']);
               <a href="index.php">Home</a>
             </li>
             <li class="breadcrumb-item">
-              <a href="#">SEO</a>
+              <a href="archives.php?tag=<?php
+              echo $row['a_tag'];
+              ?>"><?php echo substr($row['a_tag'], 0, 6); ?>..</a>
             </li>
             <li class="breadcrumb-item active">Data</li>
           </ol>
@@ -141,8 +187,8 @@ $date = mysqli_real_escape_string($conn, $_GET['date']);
                   <span class="ion-chatbox"></span>
                    <?php
         require 'connect.php';
-        
-        $sql = "SELECT * FROM seo_comment";
+         $id = mysqli_real_escape_string($conn, $_GET['id']);
+        $sql = "SELECT * FROM seo_comment WHERE post_id = '$id'";
 $result = $conn->query($sql);
 $queryResult = mysqli_num_rows($result);
 ?>
@@ -166,7 +212,7 @@ $queryResult = mysqli_num_rows($result);
                 Comment!
               </h3>
             </div>
-            <form action="seo.php" method="post" class="form-mf">
+            <form action="#suus" method="post" class="form-mf">
               <div class="row">
                 <div class="col-md-6 mb-3">
                   <div class="form-group">
@@ -187,7 +233,9 @@ $queryResult = mysqli_num_rows($result);
                 </div>
                 <div class="col-md-12">
                   <button type="submit" class="button button-a button-big button-rouded" name="submit">Comment!</button>
-                    <h5 id="suus" class="float-right p-2 text-success"><?= $success; ?></h5>  <h5 class="float-right p-2 text-danger"><?= $error; ?></h5>
+                  <div id="suus" class="alert alert-<?php echo $alert; ?> mt-2">
+                <?php echo $message; ?>
+                  </div>
                 </div>
               </div>
             </form>
@@ -198,11 +246,10 @@ $queryResult = mysqli_num_rows($result);
  <section>
         <?php
         $id = mysqli_real_escape_string($conn, $_GET['id']);
-        echo $id;
+        
         require 'connect.php';
-        $sql = "SELECT * FROM `seo_comment` WHERE id=5";
-        echo $row['id'];
-        //$sql = "SELECT * FROM seo_comment";
+        $sql = "SELECT * FROM `seo_comment` WHERE post_id='$id'";
+      
 $result = $conn->query($sql);
 $queryResult = mysqli_num_rows($result);
 ?>
@@ -211,10 +258,11 @@ $queryResult = mysqli_num_rows($result);
               <h4 class="title-comments title-left">Comments (<?php
               if ($queryResult > 0) {
               
-              ?><span class='text-success'><?php echo $queryResult;?></span><?php
+              ?><span class='text-success'><?php echo $queryResult;
+              //echo $numComments; ?></span><?php
               
               }else {
-                echo("<span class='text-danger'>0</span>");
+                echo("<span class='text-warning'>0</span>");
               }
               
               ?>)</h4>
@@ -226,10 +274,13 @@ $queryResult = mysqli_num_rows($result);
 if ($result->num_rows > 0) {
     // output data of each row
     while($row = $result->fetch_assoc()) {
-        echo "<ul class='list-comments'><li><div class='comment-avatar'><img src='./blog-img/profile.png'></div> <div class='comment-details'><h4 class='comment-author'>" . $row["a_name"]. "</h4><span>".$row["cur_date"]."</span><p>".$row['a_comment']."</p><a href='javascript:void(0)' data-commentID='".$data['id']."' onclick='reply(this)'>Reply</a> </div><li></ul>";
+        ?>
+        <ul class='list-comments'><li><div class='comment-avatar'><img src='./blog-img/profile.png'></div> <div class='comment-details'><h4 class='comment-author'><?php echo $row["a_name"]; ?></h4><span><?php echo $row["cur_date"] ?></span><p><?php echo $row['a_comment']; ?></p><a href='javascript:void(0)' data-commentID='<?php echo $data['id']; ?>' onclick="reply(this)">Reply</a>
+        </div><li></ul>
+        <?php
     }
 } else {
-    echo "<h4 class='text-danger'>No Comment</h4>";
+    echo "<div class='alert-warning' style='padding:20px'>No Comment</div>";
 }
 
 
@@ -245,10 +296,12 @@ if ($result->num_rows > 0) {
             
 <section>
 <div class="row replyRow" style="display:none">
-    <div class="col-md-12">
-        <textarea style="width:70%;" class="form-control mx-5" id="replyComment" placeholder="Add Public Comment" cols="30" rows="2"></textarea><br><div>
-        <button style="float:right" class="btn-primary btn" onclick="isReply = true;" id="addReply">Add Reply</button>
-        <button style="float:right" class="btn-default btn" onclick="$('.replyRow').hide();">Close</button>
+    <div class="col-md-10 col-xs-12">
+        <textarea style="width:60%;" class="form-control input-mf" id="replyComment" placeholder="Add Reply to Comment" rows="3" cols="30"></textarea><br><div>
+          
+        <button style="float:right" class="btn-secondary btn" onclick="isReply = true;" id="addReply">Add Reply</button>
+        <button style="float:right" class="btn-default btn mr-1" onclick="$('.replyRow').hide();">Close</button>
+        
         </div>
     </div>
 </div>
@@ -262,7 +315,7 @@ if ($result->num_rows > 0) {
                 <div class="input-group">
                   <input type="text" name="search" class="form-control" placeholder="Search for..." aria-label="Search for...">
                   <span class="input-group-btn">
-                    <button class="btn btn-secondary btn-search" type="button" name="submit">
+                    <button class="btn btn-secondary btn-search" type="submit" name="submit">
                       <span class="ion-android-search"></span>
                     </button>
                   </span>
@@ -274,7 +327,7 @@ if ($result->num_rows > 0) {
             <h5 class="sidebar-title">Recent Post</h5>
             <?php
 
-$sql = "SELECT * FROM Article";
+$sql = "SELECT * FROM Article ORDER BY Article.id DESC LIMIT 4";
       $result = mysqli_query($conn, $sql);
       $queryResult = mysqli_num_rows($result);
     
@@ -286,7 +339,7 @@ $sql = "SELECT * FROM Article";
       while ($row = mysqli_fetch_assoc($result)) {
         
         echo "<li>
-        <a href='article.php?title=".$row['a_title']."&date=".$row['a_date']."'>
+        <a href='article.php?title=".$row['a_title']."&date=".$row['a_date']."&id=".$row['id']."'>
         ".$row['a_title']."
         
         </a></li>";
@@ -382,137 +435,30 @@ $result = $conn->query($sql);
                 
                 
         
-        
-        
-
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-  <!--/ Section Contact-Footer Star /-->
-  <section class="paralax-mf footer-paralax bg-image sect-mt4 route" style="background-image: url(img/IMG_ld2j38.jpg)">
-    <div class="overlay-mf"></div>
-    <footer>
-      <div class="container">
-        <div class="row">
-          <div class="col-sm-12">
-            <div class="copyright-box">
-              <p class="copyright">&copy; Copyright <strong>Obala</strong>. All Rights Reserved</p>
-              <div>
-                Designed by <a href="https://www.obala.ga">Obala Web Solutions</a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </footer>
-  </section>
-  <!--/ Section Contact-footer End /-->
-
-  <a href="#" class="back-to-top"><i class="fa fa-chevron-up"></i></a>
-  <div id="preloader"></div>
-
-  <!-- JavaScript Libraries -->
-  <script src="lib/jquery/jquery.min.js"></script>
-  <script src="lib/jquery/jquery-migrate.min.js"></script>
-  <script src="lib/popper/popper.min.js"></script>
-  <script src="lib/bootstrap/js/bootstrap.min.js"></script>
-  <script src="lib/easing/easing.min.js"></script>
-  <script src="lib/counterup/jquery.waypoints.min.js"></script>
-  <script src="lib/counterup/jquery.counterup.js"></script>
-  <script src="lib/owlcarousel/owl.carousel.min.js"></script>
-  <script src="lib/lightbox/js/lightbox.min.js"></script>
-  <script src="lib/typed/typed.min.js"></script>
-  <!-- Contact Form JavaScript File -->
-  <script src="contactform/contactform.js"></script>
-
-  <!-- Template Main Javascript File -->
-  <script src="js/main.js"></script>
-  
-  <script>
-    var isReply = false, commentID = 0, max = <?php echo $numComments ?>;
-
-    $(document).ready(function () {
-        $("#addComment, #addReply").on('click', function () {
-          const post_id = $("#post_id").val();
-            var comment;
-
-            if (!isReply)
-                comment = $("#mainComment").val();
-            else
-                comment = $("#replyComment").val();
-
-            if (comment.length > 5) {
-                $.ajax({
-                    url: 'index.php',
-                    method: 'POST',
-                    dataType: 'text',
-                    data: {
-                        addComment: 1,
-                        comment: comment,
-                        isReply: isReply,
-                        commentID: commentID,
-              post_id:post_id
-                    }, success: function (response) {
-                        max++;
-                        $("#numComments").text(max + " Comments");
-
-                        if (!isReply) {
-                            $(".userComments").prepend(response);
-                            $("#mainComment").val("");
-                        } else {
-                            commentID = 0;
-                            $("#replyComment").val("");
-                            $(".replyRow").hide();
-                            $('.replyRow').parent().next().append(response);
-                        }
-                    }
-                });
-            } else
-                alert('Please Check Your Inputs');
-        });
-  </script>
-
-</body>
-</html>
-
-   <?php
+           <?php
+           include('footer.php');
     }
    ?>
 
-     
-     
-     
-     <?php
-     /* if ($title == "Top five free Hosting website with CPanel") {
-       //header("webhost-blog.php");
-      echo("<script>window.location.assign('webhost-blog.php')</script>");
-     }
-     
-     if ($title == "Best Code Editors for Web development") {
-       //header("editor.php");
-       echo("<script>window.location.assign('editor.php')</script>");
-     }
-     
-     if ($title == "Five advanced methods to rank highly in Google search results") {
-      //header("seo.php");
-      echo("<script>window.location.assign('seo.php')</script>");
-     }
-     
-     */
+        
+
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      

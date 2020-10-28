@@ -1,7 +1,7 @@
 <?php
 session_start();
 include "connect.php";
-if (isset($_POST["email"])) {
+if (isset($_POST["signup_button"])) {
     $email = $_POST['email'];
     $emailValidation = "/^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9]+(\.[a-z]{2,4})$/";
     

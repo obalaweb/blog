@@ -23,6 +23,6 @@
              </div>
              <script>
                function obala() {
-                 alert($("email_subscribe").val());
+                 alert($("email").val());
                }
              </script>

@@ -1,10 +1,14 @@
 <?php
 session_start();
 require("server.php");
-if ($_SESSION["favcolor"] != "green") {
-  
-      header("location:login.php?Invalid = Please Login");
-} else {
+$loggedIn = false;
+require("process.php");
+
+
+
+if (!$loggedIn) {
+  header("location:login.php?Invalid=please login first");
+}else {
   
 ?>
 <!DOCTYPE html>

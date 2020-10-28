@@ -1,9 +1,13 @@
 <?php
 session_start();
 require("server.php");
-if ($_SESSION["favcolor"] != "green") {
-  
-      header("location:login.php?Invalid = Please Login");
+$loggedIn = false;
+require("process.php");
+
+
+
+if (!$loggedIn) {
+  header("location:login.php?Invalid=please login first");
 } else {
   
 ?>
@@ -29,11 +33,17 @@ if ($_SESSION["favcolor"] != "green") {
      <header>
        <nav class="top py-1">   
        <h4 class="pl-2 float-left"><i id="bars" class="fa fa-bars"></i></h4> 
-      <a href="../../"><i id="home" class="fa fa-home mx-4"></i></a>
-           <a class="btn btn-warning mr-2 float-right" href="logout.php">Logout</a>
+       <div class="dropdown">
+      <span><i id="home" class="fa fa-home mx-4"></i></span>
+      <div class="visit-site"> 
+      <a class="btn" href="../../">Visit Site</a>
+      </div>
+      </div>
+           <button class="btn btn-warning mr-2 float-right" id="logout">Logout</button>
        </nav>
      </header>
    </div>
+   
    
     <!-- 
 ===============================
@@ -43,21 +53,61 @@ if ($_SESSION["favcolor"] != "green") {
 ===============================
 ----> 
    <div class="content-wrapper pt-3">
-     <div class="container">
+     <div id="append" class="container">
        <div class="title">
-         <h3 class="text-left">Settings</h3>
+         <p class="text-left"><a style="color: #751aff !important; font-size:18px !important; font-weight:bolder !important;" href="#" onclick="backB()">SETTINGS</a><span style="font-weight:bolder;" id="innerTab"></span></p>
        </div>
+       <div class="easeout">
        <div class="main-content">
           <div class="container">
-              <button class="btn px-3 btn-default btn-md">General</button>
-              <button class="btn px-3 m-2 btn-default btn-md">Appearance</button>
-              <button class="btn px-3 btn-default btn-md">Multimedia</button>
+              <button onclick="openGen()" class="btn px-3 btn-default btn-md">General</button>
+              <button onclick="openApp()" class="btn px-3 m-2 btn-default btn-md">Appearance</button>
+              <button onclick="openMul()" class="btn px-3 btn-default btn-md">Multimedia</button>
               
-              <button class="btn px-3 btn-default btn-md">Optimisations</button>
+              <button onclick="openOpt()" class="btn px-3 btn-default btn-md">Optimisations</button>
           </div>
           
           
        </div>
+       </div>
+       <div class="options" id="removed">
+       <div class="general">
+         <div class="container">  
+         <div class="innerbox">
+           <h2>General</h2>
+           <img src="../blog-img/search1.jpg" class="img-fluid" />
+         </div>
+         </div>
+ 
+</div>
+       <div class="appear">
+         <div class="container">  
+         <div class="innerbox">
+           <h2>Appearance</h2>
+           <img src="../blog-img/search1.jpg" class="img-fluid" />
+         </div>
+         </div>
+ 
+</div>
+       <div class="multi">
+         <div class="container">  
+         <div class="innerbox">
+           <h2>Multimedia</h2>
+           <img src="../blog-img/search1.jpg" class="img-fluid" />
+         </div>
+         </div>
+ 
+</div>
+       <div class="optimise">
+         <div class="container">  
+         <div class="innerbox">
+           <h2>Optimisations</h2>
+           <img src="../blog-img/search1.jpg" class="img-fluid" />
+         </div>
+         </div>
+ 
+</div>
+</div>
      </div>
    </div>
    
@@ -68,7 +118,7 @@ if ($_SESSION["favcolor"] != "green") {
         MAIN CONTENT
 ===============================
 ===============================
-----> 
+----
 <div class="main-container">
   <h2>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Impedit inventore porro ipsa beatae officia. Aspernatur quod fugit culpa voluptatem eveniet distinctio quam, maiores cumque atque vel, quo veniam facilis minus?</h2>
 </div>
@@ -122,6 +172,39 @@ if ($_SESSION["favcolor"] != "green") {
      bars.addEventListener("click", function () {
        $("#sidebar").toggleClass("sidebar")
      });
+   </script>
+   <script>
+   
+   function backB() {
+       $(".main-content").css("display", "block");
+       $("#innerTab").text("");
+       $("#removed").css("display", "none");
+   }
+     function openGen() {
+       $(".main-content").css("display", "none");
+       $("#innerTab").text("/General");
+       $(".general").css("display", "block");
+       $(".options").css("display", "block");
+     }
+     
+     function openApp() {
+       $(".main-content").css("display", "none");
+       $("#innerTab").text("/Appearance");
+       $(".appear").css("display", "block");
+       $(".options").css("display", "block");
+     }
+     function openMul() {
+       $(".main-content").css("display", "none");
+       $("#innerTab").text("/Multimedia");
+       $(".multi").css("display", "block");
+       $(".options").css("display", "block");
+     }
+     function openOpt() {
+       $(".main-content").css("display", "none");
+       $("#innerTab").text("/Optimisations");
+       $(".optimise").css("display", "block");
+       $(".options").css("display", "block");
+     }
    </script>
   </body>
 </html>

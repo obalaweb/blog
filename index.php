@@ -1,15 +1,47 @@
 
 <?php
 
+
    session_start();
    include "header.php";
    include "connect.php";
 ?>
                           <?php
 
-$sql = "SELECT * FROM Article";
+$sql = "SELECT * FROM Article ORDER BY Article.id DESC";
       $result = mysqli_query($conn, $sql);
       $queryResult = mysqli_num_rows($result);
+  
+
+function _time_($datetime, $full = false) {
+    $now = new DateTime;
+    $ago = new DateTime($datetime);
+    $diff = $now->diff($ago);
+
+    $diff->w = floor($diff->d / 7);
+    $diff->d -= $diff->w * 7;
+
+    $string = array(
+        'y' => 'year',
+        'm' => 'month',
+        'w' => 'week',
+        'd' => 'day',
+        'h' => 'hour',
+        'i' => 'minute',
+        's' => 'second',
+    );
+    foreach ($string as $k => &$v) {
+        if ($diff->$k) {
+            $v = $diff->$k . ' ' . $v . ($diff->$k > 1 ? 's' : '');
+        } else {
+            unset($string[$k]);
+        }
+    }
+
+    if (!$full) $string = array_slice($string, 0, 1);
+    return $string ? implode(', ',$string) . ' ago' : 'just now';
+}
+
     
  ?>
 <section id="blog" class="blog-mf sect-pt4 route">
@@ -19,6 +51,11 @@ $sql = "SELECT * FROM Article";
                         <?php
                 if ($queryResult > 0) {  
       while ($row = mysqli_fetch_assoc($result)) {
+        
+
+$date = _time_($row['a_date']);
+/* lapsed_string('2013-05-01 00:22:35', true);*/
+        
         echo "<div class='col-md-4'>
           <div class='card card-blog'>
             <div class='card-img'>
@@ -27,13 +64,13 @@ $sql = "SELECT * FROM Article";
             <div class='card-body'>
               <div class='card-category-box'>
                 <div class='card-category'>
-                  <h6 class='category'>".$row['a_tag']."</h6>
+                  <h6 class='category'><a style='color:#fff !important;' href='archives.php?tag=".$row['a_tag']."'>".$row['a_tag']."</a></h6>
                 </div>
               </div>
-              <h4 class='card-title'><a href='seo.php'>".$row['a_title']."</a></h4>
+              <h4 class='card-title'><a href='article.php?title=".$row['a_title']."&date=".$row['a_date']."&id=".$row['id']."'>".$row['a_title']."</a></h4>
               <p class='card-description'>
-                ".$row['a_text']."
-              </p>
+                ".substr($row['a_text'], 0, 100)."
+               .. <b><a href='article.php?title=".$row['a_title']."&date=".$row['a_date']."&id=".$row['id']."'>Readmore</a></b></p>
             </div>
             <div class='card-footer'>
               <div class='post-author'>
@@ -42,8 +79,8 @@ $sql = "SELECT * FROM Article";
                   <span class='author'>Obala Joseph Ivan</span>
                 </a>
               </div>
-              <div class='post-date'>
-                <span class='ion-ios-clock-outline'></span> ".$row['a_date']."
+              <div class='post-date'> ".$date."
+                <span class='ion-ios-clock-outline'></span>
               </div>
             </div>
           </div>
@@ -65,15 +102,7 @@ $sql = "SELECT * FROM Article";
      
   </section>
   
-  
-  
-  
-  
-  
-  
-  
-  
-  
+
   
   <?php
     include 'footer.php';
