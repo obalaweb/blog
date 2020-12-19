@@ -8,7 +8,7 @@
             <div class="copyright-box">
               <p class="copyright">&copy; Copyright <strong>Obala</strong>. All Rights Reserved</p>
               <div>
-                Designed by <strong><a style="color:#fff !important;" href="https://www.obala.ga">Obala Web Solutions</a></strong>
+                Designed by <strong><a style="color:#fff !important;" href="https://www.obala.ga">Obala WebSolutions</a></strong>
               </div>
             </div>
           </div>

@@ -98,9 +98,12 @@ if (isset($_POST['register'])) {
 
 
 if (isset($_POST["add_post"])) {
-  
+  $title = $_POST["title"];
+  $img_title = substr($title, 3, 9);
   $target_dir = "../blog-img/";
-$target_file = $target_dir . basename($_FILES["img"]["name"]);
+$target_file = $target_dir . $img_title . basename($_FILES["img"]["name"]);
+  $target_dirs = "blog-img/";
+$target_files = $target_dirs . $img_title . basename($_FILES["img"]["name"]);
 $uploadOk = 1;
 $imageFileType = pathinfo($target_file,PATHINFO_EXTENSION);
 // Check if image file is a actual image or fake image
@@ -114,8 +117,9 @@ $imageFileType = pathinfo($target_file,PATHINFO_EXTENSION);
     $error = "Post can't be blank";
   } else {
     $post = $_POST["post"];
-    $title = $_POST["title"];
-    $img = $_FILES["img"]['name'];
+    
+    $img = $target_files;
+    //$_FILES["img"]['name'];
     $tag = $_POST["tag"];
     
     $check = getimagesize($_FILES["img"]["tmp_name"]);
@@ -155,7 +159,7 @@ if ($uploadOk == 0) {
 }
 
     $sql = "INSERT INTO Article (a_title, a_tag, a_author, a_date, a_text, a_img)
-VALUES ('$title', '$tag', '', NOW(), '$post', 'blog-img/$img')";
+VALUES ('$title', '$tag', '', NOW(), '$post', '$img')";
 
 if ($db->query($sql) === TRUE) {
   $id = $db->insert_id;

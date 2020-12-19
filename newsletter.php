@@ -3,8 +3,8 @@
               <form id="offer_form" onsubmit="return false">
                 <label for="email_subscribe" class="ml-3 mt-3 lead">Subscribe</label>
                 <div class="form-group mail">
-                  <input style="width:300px;" type="email" name="email" class="input form-control py-4" id="email email_subscribe" placeholder="Email">
-                  <input style="position:relative; margin-right: 20px; top: -47px; padding: 10px;" type="submit" class="px-3 newsletter-btn btn btn-sm btn-primary float-right" value="Send" onclick="obala()" name="signup_button">
+                  <input style="width:300px;" type="email" name="email" class="input form-control py-4" id="emailInput" placeholder="Email">
+                  <input style="position:relative; margin-right: 20px; top: -47px; padding: 10px;" type="submit" class="px-3 newsletter-btn btn btn-sm btn-primary float-right" value="Send" id="submitBtn" name="signup_button">
                 </div>
               </form>
               <div class="" id="offer_msg">
@@ -21,8 +21,3 @@
                </ul>
              </div>
              </div>
-             <script>
-               function obala() {
-                 alert($("email").val());
-               }
-             </script>
